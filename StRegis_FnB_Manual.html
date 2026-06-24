@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="St. Regis F&B">
+<meta name="theme-color" content="#8B6914">
+<title>St. Regis — F&B Guide</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --gold:#8B6914;--gold-bg:#FBF5E6;--gold-border:#D4A843;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --blue:#0C447C;--blue-bg:#E6F1FB;
+  --teal:#085041;--teal-bg:#E1F5EE;
+  --amber:#633806;--amber-bg:#FAEEDA;
+  --purple:#3C3489;--purple-bg:#EEEDFE;
+  --coral:#712B13;--coral-bg:#FAECE7;
+  --green:#27500A;--green-bg:#EAF3DE;
+  --pink:#72243E;--pink-bg:#FBEAF0;
+  --gray:#444441;--gray-bg:#F1EFE8;
+  --text:#1a1a1a;--text2:#666;--text3:#999;
+  --border:#e0ddd8;--border2:#ccc;
+  --bg:#f8f7f4;--card:#fff;
+  --radius:14px;--radius-sm:10px;--radius-xs:7px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.5;overscroll-behavior:none}
+body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+
+/* TOP BAR */
+.topbar{background:var(--gold-bg);border-bottom:1px solid var(--gold-border);padding:env(safe-area-inset-top,16px) 16px 0;flex-shrink:0}
+.topbar-inner{padding-bottom:12px}
+.hotel-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.hotel-name{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.search-wrap{position:relative;margin-top:10px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;opacity:.4;pointer-events:none}
+#search{width:100%;height:40px;padding:0 12px 0 38px;font-size:15px;border-radius:10px;border:1px solid var(--border2);background:#fff;color:var(--text);outline:none}
+#search:focus{border-color:var(--gold)}
+
+/* PROGRESS */
+.progress-bar-wrap{background:#fff;border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.prog-label{font-size:12px;color:var(--text2)}
+.prog-val{font-size:12px;font-weight:600;color:var(--teal)}
+.prog-track{height:5px;background:#eee;border-radius:3px;overflow:hidden}
+.prog-fill{height:5px;background:var(--teal);border-radius:3px;transition:width .35s ease}
+
+/* TABS */
+.tabs-wrap{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;flex-shrink:0;overflow:hidden}
+.tabs{display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 0}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid transparent;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s;margin-right:6px;user-select:none}
+.tab:last-child{margin-right:0}
+.tab.active{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* SCROLL AREA */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:12px;padding:14px 14px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.card-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-ico svg{width:20px;height:20px}
+.card-meta{flex:1;min-width:0}
+.card-title{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
+.card-sub{font-size:12px;color:var(--text3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.card-prog{font-size:12px;color:var(--text3);font-weight:500}
+.chevron{width:20px;height:20px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.card.open .chevron{transform:rotate(180deg)}
+
+.card-body{display:none;border-top:1px solid var(--border);padding:4px 14px 14px}
+.card.open .card-body{display:block}
+
+/* STEPS */
+.slabel{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin:14px 0 6px}
+.step{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;-webkit-user-select:none}
+.step:last-of-type{border-bottom:none}
+.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;transition:all .15s}
+.step-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:8px;transition:all .2s}
+.step-text{font-size:14px;line-height:1.55;color:var(--text);flex:1}
+.step.done .step-text{color:var(--text3);text-decoration:line-through}
+.step.done .step-num{background:#EAF3DE!important;color:#27500A!important}
+.step.done .step-dot{background:var(--teal);border-color:var(--teal)}
+
+/* TIMING GRID */
+.timing-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0 4px}
+.timing-card{background:var(--bg);border-radius:var(--radius-xs);padding:12px;text-align:center}
+.timing-num{font-size:26px;font-weight:700;color:var(--text);line-height:1}
+.timing-unit{font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.timing-label{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500}
+
+/* RESET BTN */
+.reset-btn{width:100%;margin-top:12px;padding:10px;border-radius:var(--radius-xs);border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.reset-btn:active{background:var(--bg)}
+.reset-btn svg{width:15px;height:15px}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty svg{width:40px;height:40px;opacity:.3;margin:0 auto 12px;display:block}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.empty-sub{font-size:14px}
+
+/* WARN */
+.step-warn .step-num{background:#FCEBEB!important;color:#A32D2D!important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="hotel-label">The St. Regis New York</div>
+    <div class="hotel-name">F&B Management Guide</div>
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search" type="search" placeholder="Search procedures…" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="prog-row">
+    <span class="prog-label">Today's checklist progress</span>
+    <span class="prog-val" id="prog-txt">0 / 0 done</span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-cat="all">All</div>
+    <div class="tab" data-cat="onboarding">Onboarding</div>
+    <div class="tab" data-cat="daily">Daily ops</div>
+    <div class="tab" data-cat="amenities">Amenities</div>
+    <div class="tab" data-cat="guest">FS Guest</div>
+    <div class="tab" data-cat="forbes">Forbes</div>
+    <div class="tab" data-cat="payroll">Payroll</div>
+  </div>
+</div>
+
+<div class="scroll" id="scroll">
+  <div id="cards"></div>
+</div>
+
+<script>
+const ico = {
+  'user-plus':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>',
+  'building':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+  'phone':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17z"/></svg>',
+  'sun':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  'gift':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+  'send':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  'printer':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  'star':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  'cert':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>',
+  'file':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
+  'moon':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  'stars':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M20 3v4m2-2h-4"/></svg>',
+  'chevron':'<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>',
+  'refresh':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+  'search':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+};
+
+const TIMINGS_DATA = [
+  {num:'1',unit:'min',label:'Greet on arrival'},
+  {num:'7',unit:'min',label:'Cold breakfast'},
+  {num:'10',unit:'min',label:'Hot breakfast'},
+  {num:'5',unit:'min',label:'Clear table'},
+];
+
+const DATA = [
+{id:'onboard',cat:'onboarding',icon:'user-plus',icoB:'#F1EFE8',icoC:'#444441',title:'On-Boarding Process',sub:'Systems · Teams · Physical items',steps:[
+  {t:'label',text:'Management requests access to'},
+  {t:'dot',text:'GXP'},
+  {t:'dot',text:'Lightspeed'},
+  {t:'dot',text:'Micros'},
+  {t:'dot',text:'Transcendent'},
+  {t:'dot',text:'Atlas'},
+  {t:'dot',text:'Guest Voice'},
+  {t:'dot',text:'Identity Shoppe'},
+  {t:'dot',text:'Hot Shop'},
+  {t:'dot',text:'Iris GXP'},
+  {t:'label',text:'Management adds them to'},
+  {t:'dot',text:'Teams Chats: Operations, Luminaries, VIP Movements, F&B x *insert department'},
+  {t:'dot',text:'F&B management email Distribution List'},
+  {t:'dot',text:'Ipoolside RTR amenity emails'},
+  {t:'label',text:'Management obtains'},
+  {t:'dot',text:'Micros Manager Key'},
+  {t:'dot',text:'Master Hotel Key'},
+  {t:'dot',text:'Name Tag, Pin & House Commitment Card'},
+]},
+{id:'outlets',cat:'daily',icon:'building',icoB:'#E1F5EE',icoC:'#085041',title:'Hotel Outlets — Hours',sub:'La Maisonette · Drawing Room · KCB · PD',steps:[
+  {t:'label',text:'La Maisonette'},
+  {t:'dot',text:'Breakfast: 7:00am – 11:30am'},
+  {t:'dot',text:'Lunch: 12:00pm – 4:00pm'},
+  {t:'dot',text:'Afternoon Tea: Fri–Sun, 1pm–3pm (pre-paid / OpenTable only)'},
+  {t:'label',text:'The Drawing Room'},
+  {t:'dot',text:'Wed–Sun: light bites all day; full menu at 4pm, open 9am–11pm'},
+  {t:'dot',text:'Mon–Tue: full menu 4:00pm – 11:00pm'},
+  {t:'label',text:'The King Cole Bar'},
+  {t:'dot',text:'Dinner only: 4:00pm – 11:00pm'},
+  {t:'label',text:'Private Dining — 24/7'},
+  {t:'dot',text:'Breakfast: 6:30am – 11:30am'},
+  {t:'dot',text:'All Day: 12:00pm – 10:30pm'},
+  {t:'dot',text:'OVN: 10:30pm – 6:00am'},
+]},
+{id:'calllog',cat:'daily',icon:'phone',icoB:'#E6F1FB',icoC:'#0C447C',title:'Call Around Log',sub:'When associate calls out sick',ck:true,steps:[
+  {t:'step',n:1,text:'Open log: G/Astor/Schedule&Forms/Call Around Log 2025'},
+  {t:'step',n:2,text:'Fill top section: date, time of call out, associate\'s name'},
+  {t:'step',n:3,text:'Sit with delegate — call through in order of seniority'},
+  {t:'step',n:4,text:'Leave a voicemail with: date & time of call + date & time OT available. Also send a text message'},
+  {t:'step',n:5,text:'For each call document: time of call & result of call'},
+  {t:'step',n:'!',text:'Delegate & manager must sign form at conclusion of call',warn:true},
+]},
+{id:'opening',cat:'daily',icon:'sun',icoB:'#FAEEDA',icoC:'#633806',title:'Opening Duties',sub:'Morning checklist — 10 steps',ck:true,steps:[
+  {t:'step',n:1,text:'Check email/messages for call-outs → call around if needed'},
+  {t:'step',n:2,text:'Review Logbook: schedule changes, guest issues, special requests. Prepare Total Covers, Total Revenue & Avg guest spend for Operations Meeting'},
+  {t:'step',n:3,text:'Print & Distribute: amenities list (p.7) · FS guest list (p.8) · Daily House Briefing'},
+  {t:'step',n:4,text:'Walk all outlets: OVN clean & floors checked · KCB backroom (trash can, fridge items sealed) · Drawing Room cleared (all in server station, nothing out) · La Maisonette (polished, tables set) · Lower Lobby restrooms open & clean by 7am'},
+  {t:'step',n:5,text:'Music on, volume appropriate · hosts have In-House Guest list · newspapers at host stand'},
+  {t:'step',n:6,text:'Go over schedule: ensure open shifts filled & hosts are timely'},
+  {t:'step',n:7,text:'Check Daily Reservations: large parties, dietaries, VIPs, Afternoon Tea'},
+  {t:'step',n:8,text:'Go over Resumes: F&B section — amenities, special billing, replenishments'},
+  {t:'step',n:9,text:'Review Guestvoice: negative & positive feedback to share at Stand-Ups'},
+  {t:'step',n:10,text:'Review Atlas: all associates punched in properly for their shift'},
+]},
+{id:'entering',cat:'amenities',icon:'gift',icoB:'#EEEDFE',icoC:'#3C3489',title:'Entering Amenities (GXP)',sub:'13-step process',ck:true,steps:[
+  {t:'step',n:1,text:'Navigate to GXP'},
+  {t:'step',n:2,text:'Select "Create Case" button — bottom right'},
+  {t:'step',n:3,text:'Select NYCXR & then select Amenity'},
+  {t:'step',n:4,text:'From "Reservation Status" drop down select "All"'},
+  {t:'step',n:5,text:'Enter proper room number or guest name'},
+  {t:'step',n:6,text:'Select Reservation Look-Up → find matching reservation & select'},
+  {t:'step',n:7,text:'From "Amenity Name" bar hit search → select the amenity requested'},
+  {t:'step',n:8,text:'Update description to match reason/card necessary'},
+  {t:'step',n:9,text:'Under Amenity Requestor Bar enter the corresponding department'},
+  {t:'step',n:10,text:'Select "Do It Later Box"'},
+  {t:'step',n:11,text:'Under "Override Priority Box" select "Dispatch at Check-In"'},
+  {t:'step',n:12,text:'Select Save'},
+  {t:'step',n:13,text:'Navigate to "Daily All Amenity Report" & refresh — ensure amenity is showing up accordingly'},
+  {t:'step',n:'!',text:'May need to write a note card — see p. 10 for amenity scripts',warn:true},
+]},
+{id:'sending',cat:'amenities',icon:'send',icoB:'#FAECE7',icoC:'#712B13',title:'Sending Amenities',sub:'After guest checks In-House',ck:true,steps:[
+  {t:'step',n:1,text:'GXP → find reports → Daily All Amenity Report – NYCXR/NYCRR'},
+  {t:'step',n:2,text:'Under Reservation Status check for IN-HOUSE — guest has checked in so we can send amenity to room'},
+  {t:'step',n:3,text:'If "with Note" — find the corresponding note by matching name & reservation number'},
+  {t:'step',n:4,text:'On sticky note write the room number found next to the reservation details'},
+  {t:'step',n:5,text:'Standard amenity delivery → goes to the pantry'},
+  {t:'step',n:6,text:'Straight to room: alcohol, VIP amenities, large set-ups → write IN ROOM on sticky note'},
+  {t:'step',n:7,text:'Ensure team has what is needed: champagne from IRD wine fridge · chocolate boxes in downstairs walk-in · custom amenity may need to be made'},
+  {t:'step',n:8,text:'Send message in operations chat: last name, room number, pantry or room'},
+  {t:'step',n:9,text:'Close Case on GXP: Blue Highlighted Case # → "Closed" arrow → "Select Closed Status" → "Completed" in Resolution Status → "Done"'},
+]},
+{id:'printing',cat:'amenities',icon:'printer',icoB:'#E6F1FB',icoC:'#0C447C',title:'Printing Amenity Sheet',sub:'Daily GXP export procedure',ck:true,steps:[
+  {t:'step',n:1,text:'GXP → find reports → Daily All Amenity Report – NYCXR/NYCRR'},
+  {t:'step',n:2,text:'Click the down arrow next to edit & select "Export"'},
+  {t:'step',n:3,text:'Select "Details Only" → export to Excel'},
+  {t:'step',n:4,text:'In Excel: select the whole sheet → select add all borders'},
+  {t:'step',n:5,text:'To Print: one sided, landscape · fit all columns on one page · print 3 copies'},
+  {t:'step',n:6,text:'Highlight any special requests (anni / bday / etc)'},
+  {t:'step',n:7,text:'Give highlighted copy to Carmen'},
+  {t:'step',n:8,text:'Give copy with number of requested Chocolate Strawberries to pastry'},
+  {t:'step',n:9,text:'Any VIP cheese plate / sliced fruit requests → go to Sous Chef'},
+]},
+{id:'fslist',cat:'guest',icon:'star',icoB:'#FCEBEB',icoC:'#A32D2D',title:'First Stay Guest — List & Restaurant',sub:'Potential Forbes inspector',ck:true,steps:[
+  {t:'step',n:'!',text:'Selected by Front Desk Managers as potential inspector. ALL Forbes standards MUST be followed. Every visit / IRD order → document in Luminaries Chat.',warn:true},
+  {t:'label',text:'Printing the FS Guest List'},
+  {t:'step',n:1,text:'Lightspeed → Dashboard → select "VIP" on main column → scroll to find "FS"'},
+  {t:'step',n:2,text:'Open FS Guest Template: G Drive/Astor/Admin/2026/FS Template'},
+  {t:'step',n:3,text:'Enter guests: Departing = RED · Arriving = GREEN · In House = BLUE'},
+  {t:'step',n:4,text:'Distribute to: order-takers · hosts · private dining team · post in BOH'},
+  {t:'label',text:'In Restaurant / Bar'},
+  {t:'step',n:5,text:'Manager MUST touch table & greet guests by name'},
+  {t:'step',n:6,text:'Ensure satisfied · ask about stay · polite conversation · go above & beyond'},
+  {t:'step',n:7,text:'Post in Luminaries: visited, service notes, key notes, reason for visit, where from, plans for day'},
+  {t:'step',n:8,text:'Broadway show mentioned → arrange custom 2-tier themed cake + note with concierge recommended restaurants in that area'},
+  {t:'step',n:9,text:'Make kitchen aware: food out promptly, presentation perfect'},
+  {t:'step',n:10,text:'No trash/discarded items on table · dishes cleared when guest is finished'},
+]},
+{id:'fsird',cat:'guest',icon:'star',icoB:'#FCEBEB',icoC:'#A32D2D',title:'First Stay Guest — IRD Procedure',sub:'When ordering through Private Dining',ck:true,steps:[
+  {t:'step',n:1,text:'All Forbes 5 Star Standards — see key standards on p.10'},
+  {t:'step',n:2,text:'Use pristine IRD table: deep-cleaned (blue masking tape under table) · linen free of holes/stains · service ware perfectly polished'},
+  {t:'step',n:3,text:'Manager MUST inspect dishes before delivery: items accurate · plating perfect'},
+  {t:'step',n:4,text:'Manager should join IRD server if possible: check satisfaction · ask about stay · go above & beyond'},
+  {t:'step',n:5,text:'Post in Luminaries: ordered through PD, steps taken, service notes, key notes, reason for visit, where from, plans for day'},
+  {t:'step',n:6,text:'Broadway show → custom 2-tier themed cake + concierge restaurant note in that area'},
+  {t:'step',n:7,text:'Make kitchen aware: food out promptly, presentation perfect'},
+  {t:'step',n:8,text:'Table setting convenient, no cutlery under plates · all food & drinks covered'},
+  {t:'label',text:'Forbes Private Dining timings'},
+  {t:'step',n:9,text:'Breakfast within 30 min · Lunch & Dinner within 40 min'},
+  {t:'step',n:10,text:'Delivery = quoted time ± 5 min — NOT earlier or later'},
+  {t:'step',n:11,text:'In-room: beverages opened & poured in room · chair(s) brought to table · wine by glass in bottle & poured in room'},
+]},
+{id:'forbes_d',cat:'forbes',icon:'cert',icoB:'#EAF3DE',icoC:'#27500A',title:'Forbes Key Points — Hotel Dining',sub:'Standards every manager must know',steps:[
+  {t:'timing'},
+  {t:'dot',text:'Guest greeted within 1 min of arrival'},
+  {t:'dot',text:'Staff asks about dietary restrictions/allergies before order (or proactively acknowledges if previously known)'},
+  {t:'dot',text:'If modification required — acknowledge when serving the meal'},
+  {t:'dot',text:'Address guest by name per their preference, if known'},
+  {t:'dot',text:'Refills/follow-up rounds within 1 min of beverage being fully empty'},
+  {t:'dot',text:'If asked for menu recommendations — provide helpful information'},
+  {t:'dot',text:'Never decline any request without offering appropriate alternatives'},
+  {t:'dot',text:'Cold breakfast within 7 min · Hot breakfast within 10 min (unless advised otherwise)'},
+  {t:'dot',text:'Removal of soiled dishes is convenient'},
+  {t:'dot',text:'Vacated tables cleared within 5 min'},
+  {t:'dot',text:'Interactions closed with polite, appropriate remarks'},
+]},
+{id:'forbes_b',cat:'forbes',icon:'cert',icoB:'#EAF3DE',icoC:'#27500A',title:'Forbes Key Points — Bar / Lounge',sub:'Bar service standards',steps:[
+  {t:'dot',text:'Guest greeted within 1 min of arrival'},
+  {t:'dot',text:'Staff highly articulate — avoids slang & excessive phrase-fragments'},
+  {t:'dot',text:'Server can helpfully discuss beverages & bar offerings, provide recommendations if asked'},
+  {t:'dot',text:'Address guest by name per their preference, if known'},
+  {t:'dot',text:'First drinks: table within 5 min · bar counter within 4 min (unless advised otherwise)'},
+  {t:'dot',text:'Follow-up rounds discreetly within 1 min of glass being empty'},
+  {t:'dot',text:'Wine by glass: show label + pour at table · offer tasting sample'},
+  {t:'dot',text:'Napkins are linen or cotton · drinks on distinctive coasters'},
+  {t:'dot',text:'Vacated spaces: bar counter within 3 min · table within 5 min'},
+  {t:'dot',text:'Staff maintains alert posture & behaves professionally in view of guest'},
+]},
+{id:'forbes_ird',cat:'forbes',icon:'cert',icoB:'#EAF3DE',icoC:'#27500A',title:'Forbes Key Points — Private Dining',sub:'IRD & in-room service standards',steps:[
+  {t:'dot',text:'Ordertaker inquires about dietary restrictions/allergies before taking order (or proactively acknowledges if known)'},
+  {t:'dot',text:'If modification required — acknowledge when serving the meal'},
+  {t:'dot',text:'Address guest by name per their preference, if known'},
+  {t:'dot',text:'Staff exhibits genuine sense of interest and concern / demonstrates anticipatory service'},
+  {t:'dot',text:'Staff closes interactions with polite, appropriate remarks'},
+  {t:'dot',text:'Ordertaker can helpfully discuss details of foods and beverages'},
+  {t:'dot',text:'Estimated delivery time is quoted — order received within 5 min of that time, not earlier or later'},
+  {t:'dot',text:'Lunch & dinner within 40 min · breakfast within 30 min'},
+  {t:'dot',text:'In-room: beverages opened and poured in the room'},
+  {t:'dot',text:'In-room: chair(s) brought to table, seating arrangement fully comfortable'},
+  {t:'dot',text:'In-room: wine by glass presented in a bottle and poured in the room'},
+]},
+{id:'pay_setup',cat:'payroll',icon:'file',icoB:'#EAF3DE',icoC:'#27500A',title:'Payroll — General Setup',sub:'Daily file setup',ck:true,steps:[
+  {t:'step',n:1,text:'Find Tip Sheet: G Drive/Astor/Tips/Private Dining/2026/'},
+  {t:'step',n:2,text:'Copy "Private Dining Master 2026" → paste into corresponding month\'s folder & rename to current W.E. date'},
+  {t:'step',n:3,text:'Open File'},
+  {t:'step',n:4,text:'On top of sheet enter current W.E. Date'},
+  {t:'step',n:5,text:'Collect breakfast, lunch & dinner reports for day'},
+  {t:'step',n:6,text:'Add all service charges (anything below charged tip, NOT including totals) from breakfast & lunch reports → AM total service charge column for selected day'},
+  {t:'step',n:7,text:'Add all service charges from dinner report → PM total service charge column for selected day'},
+  {t:'step',n:8,text:'Enter charged tips from breakfast & lunch → AM Total Tips section of sheet'},
+  {t:'step',n:9,text:'Enter charged tips from dinner → PM Total Tips section of sheet'},
+]},
+{id:'pay_am',cat:'payroll',icon:'sun',icoB:'#FAEEDA',icoC:'#633806',title:'Payroll Instructions — AM',sub:'12-step AM server payroll',ck:true,steps:[
+  {t:'step',n:1,text:'Collect IRD AM red book & find current date'},
+  {t:'step',n:2,text:'Navigate to Input Tab of Excel sheet'},
+  {t:'step',n:3,text:'Bottom right of page: each server writes their hours for each day'},
+  {t:'step',n:4,text:'Enter hours per person per day under AM Servers Hours Total — match day & hours from book'},
+  {t:'step',n:5,text:'Confirm total number of hours they write in book'},
+  {t:'step',n:6,text:'Team claims charged tips — NOT split evenly; each writes their name for tips they should receive'},
+  {t:'step',n:7,text:'Enter tips claimed per person under AM Servers – Tips portion of sheet'},
+  {t:'step',n:8,text:'Some may split — divide accordingly & distribute'},
+  {t:'step',n:9,text:'Navigate to Amenities Delivered Page of Excel sheet'},
+  {t:'step',n:10,text:'Input all amenities from top left: team tally marks each sent (e.g. "water" + 5 marks = enter 5) · do NOT enter AM on PM and vice versa'},
+  {t:'step',n:11,text:'Navigate to Payroll 7585-Svc sheet → find amenity money owed (top left) → write in book next to amenities'},
+  {t:'step',n:12,text:'On Input page confirm "total needed to distribute" column of AM Servers-Tips is BLANK (no over or under)'},
+]},
+{id:'pay_ovn',cat:'payroll',icon:'moon',icoB:'#FBEAF0',icoC:'#72243E',title:'Payroll Instructions — OVN',sub:'Overnight server payroll',ck:true,steps:[
+  {t:'step',n:1,text:'Collect IRD OVN red book & find current date'},
+  {t:'step',n:2,text:'OVN server manually writes: each check number, service charge amount (left side), charged tip if any (right side)'},
+  {t:'step',n:3,text:'OVN leaves copies of checks in their book'},
+  {t:'step',n:4,text:'Cross-reference check number & service charge in book with checks left — ensure accuracy'},
+  {t:'step',n:5,text:'Add up all service charges & cross-check with what OVN server claimed'},
+  {t:'step',n:6,text:'Input page → enter amount in O/N section of Total Service Charge'},
+  {t:'step',n:7,text:'Under Input page enter 8 hours for corresponding OVN server (there may be two)'},
+  {t:'step',n:8,text:'Enter charged tips in OVN Charged Tips section'},
+  {t:'step',n:9,text:'No amenity section for OVN — manually: G drive/Astor/Tips/Private Dining/2026 → "Master amenities paid" sheet → input amenities → bottom calculates amount owed → enter under AMEN O/N in original tip doc'},
+  {t:'step',n:10,text:'Input page → O/Night Servers Hours By Day → find name for that date → enter 8 hours next to their name'},
+]},
+{id:'pay_pm',cat:'payroll',icon:'stars',icoB:'#FAECE7',icoC:'#712B13',title:'Payroll — PM & Order-Takers',sub:'PM servers + cashier hours',ck:true,steps:[
+  {t:'label',text:'PM Instructions'},
+  {t:'step',n:1,text:'Collect PM IRD Red Book'},
+  {t:'step',n:2,text:'Navigate to Amenities Delivered Page of Excel sheet'},
+  {t:'step',n:3,text:'Input all amenities from top left: tally marks each sent · "water" + 5 marks = enter 5 · do NOT enter AM on PM and vice versa'},
+  {t:'step',n:4,text:'Navigate to Payroll 7585-Svc sheet → find amenity money owed (top left) → write in book next to amenities'},
+  {t:'step',n:5,text:'On Friday — team writes total hours for the whole week per person'},
+  {t:'step',n:6,text:'On Input page find PM Servers Hours Total → enter claimed hours accordingly'},
+  {t:'label',text:'Order-Takers'},
+  {t:'step',n:7,text:'Navigate to Input page of amenity book'},
+  {t:'step',n:8,text:'Scroll to bottom → find Cashier Hours – Total'},
+  {t:'step',n:9,text:'Open Atlas → go through associates list → take total hours for the week → enter accordingly'},
+  {t:'step',n:10,text:'Do NOT include sick / vacation / float day etc.'},
+  {t:'step',n:11,text:'If Order-Taker worked in a different department (e.g. Elena as host) — hours worked that day are NOT included in what is entered'},
+]},
+];
+
+let done={}, openCards={}, activeTab='all', searchQ='';
+
+function ck(cardId,idx){return cardId+'__'+idx}
+function stepCount(c){return (c.steps||[]).filter(s=>s.t==='step').length}
+function doneCount(c){return (c.steps||[]).filter((s,i)=>s.t==='step'&&done[ck(c.id,i)]).length}
+
+function updateProgress(){
+  const ck_cards = DATA.filter(c=>c.ck);
+  const total = ck_cards.reduce((a,c)=>a+stepCount(c),0);
+  const d = ck_cards.reduce((a,c)=>a+doneCount(c),0);
+  document.getElementById('prog-txt').textContent=d+' / '+total+' done';
+  document.getElementById('prog-fill').style.width=(total?Math.round(d/total*100):0)+'%';
+}
+
+function render(){
+  const q=searchQ.toLowerCase();
+  const filtered=DATA.filter(c=>{
+    if(activeTab!=='all'&&c.cat!==activeTab)return false;
+    if(!q)return true;
+    return c.title.toLowerCase().includes(q)||c.sub.toLowerCase().includes(q)||(c.steps||[]).some(s=>s.text&&s.text.toLowerCase().includes(q));
+  });
+  const el=document.getElementById('cards');
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty">${ico.search}<div class="empty-title">No results</div><div class="empty-sub">Try a different search term</div></div>`;
+    return;
+  }
+  el.innerHTML=filtered.map(c=>{
+    const open=openCards[c.id]||false;
+    const d=doneCount(c),total=stepCount(c);
+    const progStr=c.ck?`<span class="card-prog">${d}/${total}</span>`:'';
+    let body='';
+    (c.steps||[]).forEach((s,i)=>{
+      if(s.t==='label'){body+=`<div class="slabel">${s.text}</div>`;return;}
+      if(s.t==='timing'){
+        body+=`<div class="timing-grid">${TIMINGS_DATA.map(t=>`<div class="timing-card"><div class="timing-num">${t.num}</div><div class="timing-unit">${t.unit}</div><div class="timing-label">${t.label}</div></div>`).join('')}</div>`;
+        return;
+      }
+      if(s.t==='step'){
+        const isDone=done[ck(c.id,i)];
+        const nb=s.warn?'#FCEBEB':(isDone?'#EAF3DE':'#f0efe9');
+        const nc=s.warn?'#A32D2D':(isDone?'#27500A':'#888');
+        body+=`<div class="step${isDone?' done':''}${s.warn?' step-warn':''}" data-card="${c.id}" data-idx="${i}"><div class="step-num" style="background:${nb};color:${nc}">${s.n}</div><div class="step-text">${s.text}</div></div>`;
+        return;
+      }
+      if(s.t==='dot'){
+        body+=`<div class="step" style="cursor:default"><div class="step-dot"></div><div class="step-text">${s.text}</div></div>`;
+      }
+    });
+    if(c.ck) body+=`<button class="reset-btn" data-reset="${c.id}">${ico.refresh} Reset checklist</button>`;
+    return `<div class="card${open?' open':''}" id="c-${c.id}">
+      <div class="card-head" data-toggle="${c.id}">
+        <div class="card-ico" style="background:${c.icoB};color:${c.icoC}">${ico[c.icon]||''}</div>
+        <div class="card-meta"><div class="card-title">${c.title}</div><div class="card-sub">${c.sub}</div></div>
+        <div class="card-right">${progStr}${ico.chevron}</div>
+      </div>
+      <div class="card-body">${body}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('cards').addEventListener('click',e=>{
+  const tog=e.target.closest('[data-toggle]');
+  if(tog){const id=tog.dataset.toggle;openCards[id]=!openCards[id];render();updateProgress();return;}
+  const step=e.target.closest('.step[data-card]');
+  if(step&&step.style.cursor!=='default'){const k=ck(step.dataset.card,step.dataset.idx);done[k]=!done[k];render();updateProgress();return;}
+  const rst=e.target.closest('[data-reset]');
+  if(rst){const c=DATA.find(x=>x.id===rst.dataset.reset);if(c)(c.steps||[]).forEach((_,i)=>{delete done[ck(c.id,i)];});render();updateProgress();}
+});
+
+document.getElementById('tabs').addEventListener('click',e=>{
+  const t=e.target.closest('.tab');if(!t)return;
+  activeTab=t.dataset.cat;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  render();updateProgress();
+});
+
+let searchTimer;
+document.getElementById('search').addEventListener('input',function(){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{searchQ=this.value.trim();render();updateProgress();},150);
+});
+
+render();
+updateProgress();
+</script>
+</body>
+</html>
